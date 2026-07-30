@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <title>Happy Friendship Day!</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&family=Patrick+Hand&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg-color: #1a241f;
+      --card-bg: #24332c;
+      --accent-green: #589673;
+      --soft-green: #83b699;
+      --light-mint: #2d4239;
+      --text-light: #e8f2ec;
+      --text-muted: #a3beaf;
+      --font-main: 'Fredoka', sans-serif;
+      --font-handwriting: 'Patrick Hand', cursive;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      font-family: var(--font-main);
+      color: var(--text-light);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* FOREGROUND FALLING HEARTS (50% OPACITY OVER ALL CONTENT) */
+    .hearts-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none; /* Allows clicks to pass through to buttons/cards */
+      z-index: 9999;
+      overflow: hidden;
+      opacity: 0.5; /* 50% opacity */
+    }
+
+    .heart {
+      position: absolute;
+      color: #ff85a2;
+      font-size: 20px;
+      animation: fall linear infinite;
+      filter: drop-shadow(0 0 4px rgba(255, 133, 162, 0.6));
+    }
+
+    @keyframes fall {
+      0% {
+        transform: translateY(-30px) rotate(0deg);
+        opacity: 0;
+      }
+      15% {
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(105vh) rotate(360deg);
+        opacity: 0;
+      }
+    }
+
+    /* APP CONTAINER */
+    .app-viewport {
+      width: 100%;
+      max-width: 430px;
+      height: 100vh;
+      height: 100dvh;
+      background: var(--bg-color);
+      position: relative;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding-top: 70px;
+      padding-bottom: 20px;
+      padding-left: 15px;
+      padding-right: 15px;
+    }
+
+    /* TOP AUDIO PLAYER BAR */
+    .audio-bar-top {
+      position: fixed;
+      top: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 90%;
+      max-width: 390px;
+      background: rgba(36, 51, 44, 0.95);
+      backdrop-filter: blur(10px);
+      border: 1px solid var(--light-mint);
+      border-radius: 30px;
+      padding: 8px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+      z-index: 100;
+    }
+
+    .audio-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .disc-icon {
+      width: 28px;
+      height: 28px;
+      background: var(--light-mint);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+    }
+
+    .disc-icon.playing {
+      animation: spin 3s linear infinite;
+    }
+
+    .audio-title {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--text-light);
+    }
+
+    .audio-sub {
+      font-size: 0.68rem;
+      color: var(--text-muted);
+    }
+
+    .audio-btn {
+      background: var(--accent-green);
+      color: white;
+      border: none;
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+    }
+
+    /* SLIDES WRAPPER */
+    .slides-container {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow-y: auto;
+      width: 100%;
+    }
+
+    .slide-page {
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+      animation: fadeIn 0.35s ease-in-out forwards;
+    }
+
+    .slide-page.active {
+      display: flex;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .section-header {
+      text-align: center;
+      margin-bottom: 15px;
+    }
+
+    .section-header .tag {
+      color: var(--soft-green);
+      font-size: 0.8rem;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .section-header h3 {
+      font-size: 1.35rem;
+      color: var(--text-light);
+      margin-top: 4px;
+    }
+
+    /* Hero Card (Slide 1) */
+    .hero-card {
+      background: var(--card-bg);
+      border-radius: 20px;
+      padding: 25px 20px;
+      text-align: center;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+      border: 1px solid rgba(255,255,255,0.05);
+      width: 100%;
+    }
+
+    .hero-gif {
+      width: 130px;
+      height: 130px;
+      object-fit: contain;
+      margin: 10px auto;
+    }
+
+    .hero-card p {
+      font-size: 0.92rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    /* Memory Grid (Slide 2 - Cute Animated GIFs) */
+    .memory-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      width: 100%;
+    }
+
+    .memory-card {
+      height: 135px;
+      perspective: 1000px;
+      cursor: pointer;
+    }
+
+    .memory-inner {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      transform-style: preserve-3d;
+      transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .memory-card.flipped .memory-inner {
+      transform: rotateY(180deg);
+    }
+
+    .memory-front, .memory-back {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+      border-radius: 12px;
+      padding: 8px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+    }
+
+    .memory-front {
+      background: var(--card-bg);
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .card-gif-large {
+      width: 100px;
+      height: 100px;
+      object-fit: contain;
+    }
+
+    .memory-back {
+      background: var(--light-mint);
+      transform: rotateY(180deg);
+      border: 1px dashed var(--soft-green);
+    }
+
+    .memory-back p {
+      font-family: var(--font-handwriting);
+      font-size: 1.2rem;
+      color: var(--text-light);
+      line-height: 1.25;
+    }
+
+    /* Scratch Cards Grid (Slide 3) */
+    .scratch-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      width: 100%;
+    }
+
+    .scratch-box {
+      position: relative;
+      height: 120px;
+      border-radius: 12px;
+      overflow: hidden;
+      background: var(--card-bg);
+      border: 1px solid rgba(255,255,255,0.05);
+      touch-action: none;
+    }
+
+    .scratch-reveal {
+      position: absolute;
+      inset: 0;
+      padding: 8px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+    }
+
+    .scratch-reveal .num {
+      font-size: 0.72rem;
+      color: var(--soft-green);
+      font-weight: 600;
+    }
+
+    .scratch-reveal h4 {
+      font-size: 0.9rem;
+      color: var(--text-light);
+      margin: 2px 0;
+    }
+
+    .scratch-reveal p {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      line-height: 1.15;
+    }
+
+    .scratch-canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      cursor: pointer;
+      z-index: 2;
+    }
+
+    /* Letter Card (Slide 4) */
+    .letter-card {
+      background: var(--card-bg);
+      border-radius: 16px;
+      padding: 22px 18px;
+      border-left: 4px solid var(--accent-green);
+      width: 100%;
+    }
+
+    .letter-card h4 {
+      font-size: 1.05rem;
+      color: var(--soft-green);
+      margin-bottom: 10px;
+    }
+
+    .letter-card p {
+      font-family: var(--font-handwriting);
+      font-size: 1.2rem;
+      color: var(--text-light);
+      line-height: 1.5;
+      margin-bottom: 10px;
+    }
+
+    .letter-signature {
+      margin-top: 12px;
+      font-weight: 600;
+      color: var(--soft-green);
+    }
+
+    /* Final Card (Slide 5) */
+    .final-card {
+      background: var(--card-bg);
+      border-radius: 20px;
+      padding: 30px 20px;
+      text-align: center;
+      width: 100%;
+    }
+
+    .developer-credit {
+      text-align: center;
+      font-size: 0.95rem;
+      color: var(--soft-green);
+      margin-top: 20px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+
+    /* BOTTOM NAVIGATION BUTTON */
+    .nav-bar {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      padding-top: 10px;
+      z-index: 10;
+    }
+
+    .next-btn {
+      background: var(--accent-green);
+      color: white;
+      border: none;
+      padding: 12px 40px;
+      border-radius: 30px;
+      font-family: var(--font-main);
+      font-weight: 600;
+      font-size: 1rem;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: transform 0.1s ease, background-color 0.2s ease;
+    }
+
+    .next-btn:active {
+      transform: scale(0.95);
+      background: var(--soft-green);
+    }
+
+    @keyframes spin {
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- FOREGROUND FALLING HEARTS OVER ALL CONTENT (50% OPACITY) -->
+  <div class="hearts-container" id="heartsContainer"></div>
+
+  <div class="app-viewport">
+
+    <!-- TOP FIXED AUDIO PLAYER -->
+    <div class="audio-bar-top">
+      <div class="audio-info">
+        <div class="disc-icon" id="discIcon">🎵</div>
+        <div>
+          <div class="audio-title">Tum Se Hi</div>
+          <div class="audio-sub">our song ✿</div>
+        </div>
+      </div>
+      <button class="audio-btn" id="audioToggle">❚❚</button>
+      <!-- VOCAL SONG MP3 SOURCE -->
+      <audio id="audioTrack" loop src="https://files.freemusicarchive.org/storage-freemusicarchive-org/music/no_curator/Tours/Enthusiast/Tours_-_01_-_Enthusiast.mp3"></audio>
+    </div>
+
+    <!-- MAIN SLIDES CONTAINER -->
+    <div class="slides-container">
+
+      <!-- SLIDE 1: HERO -->
+      <div class="slide-page active" id="slide1">
+        <div class="hero-card">
+          <div class="section-header">
+            <span class="tag">✦ Happy Friendship Day</span>
+            <h3>To My Favourite Person</h3>
+          </div>
+          <img class="hero-gif" src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExM3ZkM2pxM2h0N2R2MmhseWZ5bTRnMjMzeHNscnluc2YyeW1oNTh2ZCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/kZqbBT64ECtjy/giphy.gif" alt="Hello Kitty">
+          <p>Every year this day comes around and I think the same thing: I got so lucky with you. Tap next to see what I built for you! 💐</p>
+        </div>
+      </div>
+
+      <!-- SLIDE 2: MEMORY WALL (GIRL-FRIENDLY AESTHETIC GIFS) -->
+      <div class="slide-page" id="slide2">
+        <div class="section-header">
+          <span class="tag">✦ The Memory Wall</span>
+          <h3>Flip them over</h3>
+        </div>
+
+        <div class="memory-grid">
+          <!-- Card 1: Bubu and Dudu -->
+          <div class="memory-card" onclick="this.classList.toggle('flipped')">
+            <div class="memory-inner">
+              <div class="memory-front">
+                <img class="card-gif-large" src="https://media1.giphy.com/media/v1.Y2lkPTZjMDliOTUyNWU2NWtrZW9sa2lsZXA5aTQ0MmpuYXV2Y3NwYXQwaTZjcXJmdnJnZyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/DHKDB8OdEVMkwTX3IQ/giphy.gif" alt="Bubu and Dudu">
+              </div>
+              <div class="memory-back">
+                <p>Day one energy, we had no idea what was coming.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 2: Eevee -->
+          <div class="memory-card" onclick="this.classList.toggle('flipped')">
+            <div class="memory-inner">
+              <div class="memory-front">
+                <img class="card-gif-large" src="https://media0.giphy.com/media/v1.Y2lkPTZjMDliOTUyYjRzYjlhNG5tNnNhb2Frb2F2ZW1ldjBvcXhpZWh3Zmg0aHp0cDBwaiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/sIV0wFDrsKNxe/giphy.gif" alt="Eevee">
+              </div>
+              <div class="memory-back">
+                <p>Still one of the funniest nights of my life.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 3: Minnie Mouse -->
+          <div class="memory-card" onclick="this.classList.toggle('flipped')">
+            <div class="memory-inner">
+              <div class="memory-front">
+                <img class="card-gif-large" src="https://media0.giphy.com/media/v1.Y2lkPTZjMDliOTUyNXIzMjdhZGRkc2podm1xZTR3MnFjY3FzMWh0cXVucTJ4eTZhOHF4YSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/8ke9tEXRDIJgY/giphy.gif" alt="Minnie Mouse">
+              </div>
+              <div class="memory-back">
+                <p>Nothing happened this day. That was the best part.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 4: Tonton -->
+          <div class="memory-card" onclick="this.classList.toggle('flipped')">
+            <div class="memory-inner">
+              <div class="memory-front">
+                <img class="card-gif-large" src="https://media1.giphy.com/media/v1.Y2lkPTZjMDliOTUyeXc4NmFxN3N2cHcxYXoxMG92dTkwMTdseGdueDQ5cGJlZ3QxdWNkMiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/7zGmpJmwUp5lNFudOf/giphy.gif" alt="Tonton">
+              </div>
+              <div class="memory-back">
+                <p>The trip we planned badly and loved anyway.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 5: Milk and Mocha -->
+          <div class="memory-card" onclick="this.classList.toggle('flipped')">
+            <div class="memory-inner">
+              <div class="memory-front">
+                <img class="card-gif-large" src="https://media1.giphy.com/media/v1.Y2lkPTZjMDliOTUyaWdmMXU0a294NzI1cm1nZW5jamJ4ZmNlOGh5YmhlZWZicmlmOHN0ZyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/IzXiddo2twMmdmU8Lv/giphy.gif" alt="Milk and Mocha">
+              </div>
+              <div class="memory-back">
+                <p>Unplanned plans always end up as the best ones.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 6: Milk Heart -->
+          <div class="memory-card" onclick="this.classList.toggle('flipped')">
+            <div class="memory-inner">
+              <div class="memory-front">
+                <img class="card-gif-large" src="https://media3.giphy.com/media/v1.Y2lkPTZjMDliOTUybXViOHRjN2RhNHJ3bmx1a3h4YXNvZnQwMGxnbHB2a3luMDYzYXc3YyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/gjHkRHSuHqu99y9Yjt/giphy.gif" alt="Milk Heart">
+              </div>
+              <div class="memory-back">
+                <p>No one else gets us, and that's the point.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SLIDE 3: SCRATCH CARDS -->
+      <div class="slide-page" id="slide3">
+        <div class="section-header">
+          <span class="tag">✦ Six Little Truths</span>
+          <h3>Scratch these open</h3>
+        </div>
+
+        <div class="scratch-grid">
+          <div class="scratch-box">
+            <div class="scratch-reveal">
+              <span class="num">01</span>
+              <h4>you show up</h4>
+              <p>you notice something's off before I say a word.</p>
+            </div>
+            <canvas class="scratch-canvas"></canvas>
+          </div>
+
+          <div class="scratch-box">
+            <div class="scratch-reveal">
+              <span class="num">02</span>
+              <h4>you're funny</h4>
+              <p>half my best memories are us laughing till it hurt.</p>
+            </div>
+            <canvas class="scratch-canvas"></canvas>
+          </div>
+
+          <div class="scratch-box">
+            <div class="scratch-reveal">
+              <span class="num">03</span>
+              <h4>you're stuck</h4>
+              <p>years in and you still pick up on the first ring.</p>
+            </div>
+            <canvas class="scratch-canvas"></canvas>
+          </div>
+
+          <div class="scratch-box">
+            <div class="scratch-reveal">
+              <span class="num">04</span>
+              <h4>you're honest</h4>
+              <p>you tell me what I need to hear, kindly.</p>
+            </div>
+            <canvas class="scratch-canvas"></canvas>
+          </div>
+
+          <div class="scratch-box">
+            <div class="scratch-reveal">
+              <span class="num">05</span>
+              <h4>you're real</h4>
+              <p>never having to pretend around you is the best.</p>
+            </div>
+            <canvas class="scratch-canvas"></canvas>
+          </div>
+
+          <div class="scratch-box">
+            <div class="scratch-reveal">
+              <span class="num">06</span>
+              <h4>you're home</h4>
+              <p>no matter how much time passes, nothing changes.</p>
+            </div>
+            <canvas class="scratch-canvas"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- SLIDE 4: LETTER -->
+      <div class="slide-page" id="slide4">
+        <div class="letter-card">
+          <span class="tag">✿ ONE LAST THING</span>
+          <h4 style="margin-top:4px;">A Note For You</h4>
+          <p>I'm not great at saying this stuff out loud, so I made you a page instead — a song, photos, and a few things I actually mean.</p>
+          <p>Thank you for the years of picking up the phone, for the advice I didn't ask for and definitely needed, and for never once making me explain myself twice.</p>
+          <p>I hope today is a good one, and I hope you know that whatever happens next, you've got a person in your corner permanently. That's me. I'm the person.</p>
+          <div class="letter-signature">always in your corner,<br>your bestfriend ansh :)</div>
+        </div>
+      </div>
+
+      <!-- SLIDE 5: FINAL CREDIT -->
+      <div class="slide-page" id="slide5">
+        <div class="final-card">
+          <img class="hero-gif" src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExM3hkbGIya3M5bm9ydmxldHFtMXR1Y2NqZGgybHk5ZTh5aThsdnR6ciZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/MDJ9IbxxvDUQM/giphy.gif" alt="Cat Hug GIF">
+          <h3 style="margin-top:10px;">Happy Friendship Day! 💐</h3>
+          <p style="color:var(--text-muted); margin-top:10px; font-size:0.9rem;">Hope this brought a smile to your face today!</p>
+          
+          <div class="developer-credit">
+            ✿ Created by Ansh with ♥ ✿
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- NEXT BUTTON -->
+    <div class="nav-bar">
+      <button class="next-btn" id="nextBtn">Next Page ➔</button>
+    </div>
+
+  </div>
+
+  <script>
+    // 1. FOREGROUND FALLING HEARTS GENERATOR
+    function createFallingHearts() {
+      const container = document.getElementById('heartsContainer');
+      const heartCount = 20;
+
+      for (let i = 0; i < heartCount; i++) {
+        const heart = document.createElement('div');
+        heart.className = 'heart';
+        heart.innerHTML = '♥';
+        
+        heart.style.left = Math.random() * 100 + 'vw';
+        heart.style.animationDuration = (Math.random() * 4 + 3.5) + 's';
+        heart.style.animationDelay = (Math.random() * 5) + 's';
+        heart.style.fontSize = (Math.random() * 10 + 14) + 'px';
+        
+        container.appendChild(heart);
+      }
+    }
+
+    // 2. SLIDE NAVIGATION ENGINE
+    let currentSlide = 1;
+    const totalSlides = 5;
+    const nextBtn = document.getElementById('nextBtn');
+
+    function goToNextSlide() {
+      document.getElementById(`slide${currentSlide}`).classList.remove('active');
+      
+      currentSlide++;
+      if (currentSlide > totalSlides) {
+        currentSlide = 1;
+      }
+
+      document.getElementById(`slide${currentSlide}`).classList.add('active');
+
+      if (currentSlide === totalSlides) {
+        nextBtn.textContent = 'Replay ↺';
+      } else {
+        nextBtn.textContent = 'Next Page ➔';
+      }
+
+      if (currentSlide === 3) {
+        setTimeout(initScratchCards, 150);
+      }
+    }
+
+    nextBtn.addEventListener('click', goToNextSlide);
+
+    // 3. CANVAS SCRATCH CARDS FUNCTION
+    function initScratchCards() {
+      const canvases = document.querySelectorAll('.scratch-canvas');
+
+      canvases.forEach(canvas => {
+        const parent = canvas.parentElement;
+        canvas.width = parent.offsetWidth || 160;
+        canvas.height = parent.offsetHeight || 120;
+
+        const ctx = canvas.getContext('2d');
+        
+        ctx.fillStyle = '#2d4239';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        
+        ctx.fillStyle = '#83b699';
+        ctx.font = '600 13px Fredoka';
+        ctx.textAlign = 'center';
+        ctx.fillText('scratch here', canvas.width / 2, canvas.height / 2 + 4);
+
+        let isScratching = false;
+
+        function scratch(e) {
+          if (!isScratching) return;
+          const rect = canvas.getBoundingClientRect();
+          const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+          const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+          
+          const x = clientX - rect.left;
+          const y = clientY - rect.top;
+
+          ctx.globalCompositeOperation = 'destination-out';
+          ctx.beginPath();
+          ctx.arc(x, y, 18, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        canvas.addEventListener('mousedown', (e) => { isScratching = true; scratch(e); });
+        canvas.addEventListener('mouseup', () => isScratching = false);
+        canvas.addEventListener('mousemove', scratch);
+
+        canvas.addEventListener('touchstart', (e) => { isScratching = true; scratch(e); }, {passive: true});
+        canvas.addEventListener('touchend', () => isScratching = false);
+        canvas.addEventListener('touchmove', scratch, {passive: true});
+      });
+    }
+
+    // 4. MUSIC ENGINE (SEEK DIRECTLY TO VOCAL LYRICS AT 0:22)
+    const audioTrack = document.getElementById('audioTrack');
+    const audioToggle = document.getElementById('audioToggle');
+    const discIcon = document.getElementById('discIcon');
+    let hasPlayedMusic = false;
+
+    function startMusicAtMid() {
+      if (!hasPlayedMusic) {
+        audioTrack.currentTime = 22; // Skip instrumental tune directly into vocal song
+        hasPlayedMusic = true;
+      }
+      audioTrack.play().then(() => {
+        audioToggle.textContent = '❚❚';
+        discIcon.classList.add('playing');
+      }).catch(() => {
+        audioToggle.textContent = '▶';
+        discIcon.classList.remove('playing');
+      });
+    }
+
+    audioToggle.addEventListener('click', () => {
+      if (audioTrack.paused) {
+        startMusicAtMid();
+      } else {
+        audioTrack.pause();
+        audioToggle.textContent = '▶';
+        discIcon.classList.remove('playing');
+      }
+    });
+
+    window.addEventListener('DOMContentLoaded', () => {
+      createFallingHearts();
+      
+      // Global listener to trigger music with vocals on first tap anywhere
+      document.body.addEventListener('click', () => {
+        if (!hasPlayedMusic) {
+          startMusicAtMid();
+        }
+      }, { once: true });
+    });
+  </script>
+</body>
+</html>
